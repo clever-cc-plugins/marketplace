@@ -2,8 +2,8 @@
 
 This document defines the standard structure and conventions for all plugin repositories
 in the cc-plugins ecosystem. Every plugin repo — current and future — should follow this
-layout so that the `cc-plugins` umbrella marketplace can reference them consistently, and
-so each repo remains independently installable as a standalone marketplace.
+layout so that the `cc-plugins` umbrella marketplace can reference them consistently.
+Plugin repos are not standalone marketplaces — installation always goes through `cc-plugins`.
 
 ---
 
@@ -11,8 +11,6 @@ so each repo remains independently installable as a standalone marketplace.
 
 ```
 repo-root/
-├── .claude-plugin/
-│   └── marketplace.json          # Standalone marketplace definition
 ├── .claude/
 │   └── settings.json             # Claude Code permissions and env vars
 ├── .githooks/
@@ -33,41 +31,18 @@ repo-root/
 
 ### Notes
 
-- The repo root acts as both a **standalone marketplace** (via `.claude-plugin/marketplace.json`)
-  and as a **host** for the plugin directory referenced by the `cc-plugins` catalog.
+- The repo is the **host** for the plugin directory referenced by the `cc-plugins` catalog.
+  It does not expose a standalone marketplace — users install via `MichaelvanLaar/cc-plugins`.
 - If a repo contains more than one plugin, add each as a sibling under `plugins/`:
-  `plugins/<plugin-a>/`, `plugins/<plugin-b>/`, etc. Update `marketplace.json` accordingly.
+  `plugins/<plugin-a>/`, `plugins/<plugin-b>/`, etc. Add each to `cc-plugins/marketplace.json`.
 
 ---
 
 ## Key files
 
-### `.claude-plugin/marketplace.json`
-
-Makes the repo directly installable as a marketplace. Mirrors the plugin entry from
-`cc-plugins/marketplace.json` so users can install without going through the umbrella.
-
-```json
-{
-  "name": "<plugin-name>",
-  "owner": {
-    "name": "Michael van Laar"
-  },
-  "description": "<One-line description of what this plugin does>",
-  "plugins": [
-    {
-      "name": "<plugin-name>",
-      "source": "./plugins/<plugin-name>",
-      "description": "<One-line description>"
-    }
-  ]
-}
-```
-
 ### `plugins/<plugin-name>/.claude-plugin/plugin.json`
 
-The plugin manifest. Consumed both by the standalone marketplace and by the `cc-plugins`
-catalog when the plugin is installed.
+The plugin manifest. Consumed by the `cc-plugins` catalog when the plugin is installed.
 
 ```json
 {
@@ -170,7 +145,6 @@ Project-level instructions for Claude Code. Keep it concise. Minimal recommended
 | ---------------------------------------------------- | ------------------------------------------ |
 | `CLAUDE.md`                                          | Project instructions, loaded every message |
 | `.claude/settings.json`                              | Permissions, hooks, environment variables  |
-| `.claude-plugin/marketplace.json`                    | Standalone marketplace manifest            |
 | `plugins/<plugin-name>/.claude-plugin/plugin.json`   | Plugin manifest                            |
 | `plugins/<plugin-name>/skills/<skill-name>/SKILL.md` | Skill definition                           |
 
@@ -224,7 +198,6 @@ just add an entry to `cc-plugins/marketplace.json`.
 
 - [ ] Create repo as `MichaelvanLaar/cc-<topic>` on GitHub
 - [ ] Add standard directory structure (see above)
-- [ ] Fill in `.claude-plugin/marketplace.json` (standalone marketplace)
 - [ ] Fill in `plugins/<plugin-name>/.claude-plugin/plugin.json`
 - [ ] Add skills under `plugins/<plugin-name>/skills/<skill-name>/SKILL.md`
 - [ ] Add `.claude/settings.json` with baseline permissions
