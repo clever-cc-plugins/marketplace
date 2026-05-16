@@ -6,13 +6,22 @@
   "description": "Umbrella marketplace catalog for Claude Code plugins.",
   "plugins": [
     {
-      "name": "TODO: plugin-name",
+      "name": "cc-config",
       "source": {
         "source": "git-subdir",
-        "url": "https://github.com/MichaelvanLaar/TODO-repo-name.git",
-        "path": "plugins/TODO-plugin-name"
+        "url": "https://github.com/MichaelvanLaar/cc-config.git",
+        "path": "plugins/cc-config"
       },
-      "description": "TODO: one-line description"
+      "description": "Bootstrap and audit Claude Code configurations"
+    },
+    {
+      "name": "cc-content",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/MichaelvanLaar/cc-content.git",
+        "path": "plugins/cc-content"
+      },
+      "description": "Content creation skills: brand onboarding, LinkedIn posts, sample curation, session management"
     }
   ]
 }

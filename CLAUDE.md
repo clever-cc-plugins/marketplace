@@ -6,11 +6,11 @@ Umbrella marketplace catalog for Claude Code plugins — each plugin lives in it
 
 | File | Purpose |
 |------|---------|
-| `.claudeignore` | Paths excluded from Claude Code indexing             |
-| `.claude-plugin/marketplace.json` | Umbrella marketplace catalog listing all plugins     |
-| `.claude/settings.json` | Permissions, hooks, environment variables            |
-| `docs/cc-plugin-repo-guideline.md` | Conventions for all plugin repos in the ecosystem    |
-| `.gitignore` | Git ignore patterns                                  |
+| `.claudeignore` | Paths excluded from Claude Code indexing              |
+| `.claude-plugin/marketplace.json` | Umbrella marketplace catalog listing all plugins      |
+| `.claude/settings.json` | Permissions, hooks, environment variables             |
+| `docs/cc-plugin-repo-guideline.md` | Conventions for all plugin repos in the ecosystem     |
+| `.gitignore` | Git ignore patterns                                   |
 
 ## Commands
 
