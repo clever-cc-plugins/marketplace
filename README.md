@@ -15,6 +15,7 @@ Then install any plugin from the catalog:
 ```
 /plugin install cc-config@cc-plugins
 /plugin install cc-content@cc-plugins
+/plugin install cc-ding-dong@cc-plugins
 ```
 
 ### Keeping plugins current
@@ -43,10 +44,11 @@ To remove a single plugin while keeping the marketplace:
 
 ## Available plugins
 
-| Plugin                                                       | Skills                                                                                                                                                                                            | What it does                                   |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| [`cc-config`](https://github.com/MichaelvanLaar/cc-config)   | `/cc-config-init`, `/cc-config-optimize`                                                                                                                                                          | Bootstrap and audit Claude Code configurations |
-| [`cc-content`](https://github.com/MichaelvanLaar/cc-content) | `/cc-content:cc-content-onboarding`, `/cc-content:cc-content-linkedin-post`, `/cc-content:cc-content-samples-curation`, `/cc-content:cc-content-session-wrap`, `/cc-content:cc-content-new-skill` | Content creation skills for marketing projects |
+| Plugin                                                           | Skills                                                                                                                                                                                            | What it does                                                            |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| [`cc-config`](https://github.com/MichaelvanLaar/cc-config)       | `/cc-config-init`, `/cc-config-optimize`                                                                                                                                                          | Bootstrap and audit Claude Code configurations                          |
+| [`cc-content`](https://github.com/MichaelvanLaar/cc-content)     | `/cc-content:cc-content-onboarding`, `/cc-content:cc-content-linkedin-post`, `/cc-content:cc-content-samples-curation`, `/cc-content:cc-content-session-wrap`, `/cc-content:cc-content-new-skill` | Content creation skills for marketing projects                          |
+| [`cc-ding-dong`](https://github.com/MichaelvanLaar/cc-ding-dong) | _(hook-based, no slash commands)_                                                                                                                                                                 | Plays audio notifications when tasks complete or user input is required |
 
 See each plugin's repository for full usage documentation.
 
