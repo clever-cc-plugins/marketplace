@@ -6,13 +6,15 @@ Umbrella marketplace catalog for Claude Code plugins — each plugin lives in it
 
 | File | Purpose |
 |------|---------|
-| `.claudeignore` | Paths excluded from Claude Code indexing                   |
-| `.claude-plugin/marketplace.json` | Umbrella marketplace catalog listing all plugins           |
-| `.claude/settings.json` | Permissions, hooks, environment variables                  |
-| `docs/cc-plugin-repo-guideline.md` | Conventions for all plugin repos in the ecosystem          |
-| `.github/workflows/claude-code-review.yml` | TODO: add description   |
-| `.github/workflows/claude.yml` | TODO: add description   |
-| `.gitignore` | Git ignore patterns                                        |
+| `.claude/format-marketplace-json.sh` | PostToolUse hook: auto-formats marketplace.json with jq after edits  |
+| `.claude/guard-secret-files.sh` | PreToolUse hook: blocks reads/edits of secret .env files             |
+| `.claudeignore` | Paths excluded from Claude Code indexing                             |
+| `.claude-plugin/marketplace.json` | Umbrella marketplace catalog listing all plugins                     |
+| `.claude/settings.json` | Permissions, hooks, environment variables                            |
+| `docs/cc-plugin-repo-guideline.md` | Conventions for all plugin repos in the ecosystem                    |
+| `.github/workflows/claude-code-review.yml` | Automated Claude Code PR review on pull requests                     |
+| `.github/workflows/claude.yml` | Claude Code GitHub Actions agent triggered by @claude mentions       |
+| `.gitignore` | Git ignore patterns                                                  |
 
 ## Commands
 

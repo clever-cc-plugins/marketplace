@@ -4,7 +4,12 @@
     "allow": ["Bash(git *)", "Bash(chmod +x *)"],
     "deny": [
       "Read(./.env)",
-      "Read(./.env.*)",
+      "Read(./.env.local)",
+      "Read(./.env.*.local)",
+      "Read(./.env.development)",
+      "Read(./.env.production)",
+      "Read(./.env.staging)",
+      "Read(./.env.test)",
       "Read(./secrets/**)",
       "Bash(rm -rf:*)",
       "Bash(curl:*)",
@@ -16,5 +21,29 @@
     "MAX_THINKING_TOKENS": "10000",
     "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "16000",
     "CLAUDE_CODE_SUBAGENT_MODEL": "haiku"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/guard-secret-files.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/format-marketplace-json.sh || true"
+          }
+        ]
+      }
+    ]
   }
 }
