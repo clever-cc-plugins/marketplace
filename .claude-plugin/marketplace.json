@@ -24,11 +24,11 @@
       "description": "Content creation skills: brand onboarding, LinkedIn posts, sample curation, session management"
     },
     {
-      "name": "cc-ding-dong",
+      "name": "cc-chime",
       "source": {
         "source": "git-subdir",
-        "url": "https://github.com/MichaelvanLaar/cc-ding-dong.git",
-        "path": "plugins/cc-ding-dong"
+        "url": "https://github.com/MichaelvanLaar/cc-chime.git",
+        "path": "plugins/cc-chime"
       },
       "description": "Plays audio notifications when tasks complete or user input is required"
     }
