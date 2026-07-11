@@ -1,5 +1,5 @@
 {
-  "name": "cc-plugins",
+  "name": "clever-cc-plugins",
   "owner": {
     "name": "Michael van Laar"
   },
@@ -9,7 +9,7 @@
       "name": "cc-config",
       "source": {
         "source": "git-subdir",
-        "url": "https://github.com/MichaelvanLaar/cc-config.git",
+        "url": "https://github.com/clever-cc-plugins/cc-config.git",
         "path": "plugins/cc-config"
       },
       "description": "Bootstrap and audit Claude Code configurations"
@@ -18,7 +18,7 @@
       "name": "cc-content",
       "source": {
         "source": "git-subdir",
-        "url": "https://github.com/MichaelvanLaar/cc-content.git",
+        "url": "https://github.com/clever-cc-plugins/cc-content.git",
         "path": "plugins/cc-content"
       },
       "description": "Content creation skills: brand onboarding, LinkedIn posts, sample curation, session management"
@@ -27,7 +27,7 @@
       "name": "cc-chime",
       "source": {
         "source": "git-subdir",
-        "url": "https://github.com/MichaelvanLaar/cc-chime.git",
+        "url": "https://github.com/clever-cc-plugins/cc-chime.git",
         "path": "plugins/cc-chime"
       },
       "description": "Plays audio notifications when tasks complete or user input is required"

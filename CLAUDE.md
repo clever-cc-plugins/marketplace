@@ -1,21 +1,21 @@
-# cc-plugins
+# clever-cc-plugins marketplace
 
 Umbrella marketplace catalog for Claude Code plugins — each plugin lives in its own repo and is referenced here via `git-subdir`.
 
 ## Key Config Files
 
-| File                                       | Purpose                                                             |
-| ------------------------------------------ | ------------------------------------------------------------------- |
-| `.claude/format-marketplace-json.sh`       | PostToolUse hook: auto-formats marketplace.json with jq after edits |
-| `.claude/guard-secret-files.sh`            | PreToolUse hook: blocks reads/edits of secret .env files            |
-| `.claudeignore`                            | Paths excluded from Claude Code indexing                            |
-| `.claude/learnings.md`                     | Corrections and project-specific observations logged by Claude      |
-| `.claude-plugin/marketplace.json`          | Umbrella marketplace catalog listing all plugins                    |
-| `.claude/settings.json`                    | Permissions, hooks, environment variables                           |
-| `docs/cc-plugin-repo-guideline.md`         | Conventions for all plugin repos in the ecosystem                   |
-| `.github/workflows/claude-code-review.yml` | Automated Claude Code PR review on pull requests                    |
-| `.github/workflows/claude.yml`             | Claude Code GitHub Actions agent triggered by @claude mentions      |
-| `.gitignore`                               | Git ignore patterns                                                 |
+| File | Purpose |
+|------|---------|
+| `.claude/format-marketplace-json.sh` | PostToolUse hook: auto-formats marketplace.json with jq after edits  |
+| `.claude/guard-secret-files.sh` | PreToolUse hook: blocks reads/edits of secret .env files             |
+| `.claudeignore` | Paths excluded from Claude Code indexing                             |
+| `.claude/learnings.md` | Corrections and project-specific observations logged by Claude       |
+| `.claude-plugin/marketplace.json` | Umbrella marketplace catalog listing all plugins                     |
+| `.claude/settings.json` | Permissions, hooks, environment variables                            |
+| `docs/cc-plugin-repo-guideline.md` | Conventions for all plugin repos in the ecosystem                    |
+| `.github/workflows/claude-code-review.yml` | Automated Claude Code PR review on pull requests                     |
+| `.github/workflows/claude.yml` | Claude Code GitHub Actions agent triggered by @claude mentions       |
+| `.gitignore` | Git ignore patterns                                                  |
 
 ## Commands
 

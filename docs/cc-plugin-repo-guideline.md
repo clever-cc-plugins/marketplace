@@ -1,9 +1,9 @@
-# cc-plugins Plugin Repository Guideline
+# clever-cc-plugins Plugin Repository Guideline
 
 This document defines the standard structure and conventions for all plugin repositories
-in the cc-plugins ecosystem. Every plugin repo — current and future — should follow this
-layout so that the `cc-plugins` umbrella marketplace can reference them consistently.
-Plugin repos are not standalone marketplaces — installation always goes through `cc-plugins`.
+in the clever-cc-plugins ecosystem. Every plugin repo — current and future — should follow this
+layout so that the `clever-cc-plugins` umbrella marketplace can reference them consistently.
+Plugin repos are not standalone marketplaces — installation always goes through `clever-cc-plugins`.
 
 ---
 
@@ -31,10 +31,10 @@ repo-root/
 
 ### Notes
 
-- The repo is the **host** for the plugin directory referenced by the `cc-plugins` catalog.
-  It does not expose a standalone marketplace — users install via `MichaelvanLaar/cc-plugins`.
+- The repo is the **host** for the plugin directory referenced by the `clever-cc-plugins` catalog.
+  It does not expose a standalone marketplace — users install via `clever-cc-plugins/marketplace`.
 - If a repo contains more than one plugin, add each as a sibling under `plugins/`:
-  `plugins/<plugin-a>/`, `plugins/<plugin-b>/`, etc. Add each to `cc-plugins/marketplace.json`.
+  `plugins/<plugin-a>/`, `plugins/<plugin-b>/`, etc. Add each to `marketplace/.claude-plugin/marketplace.json`.
 
 ---
 
@@ -42,7 +42,7 @@ repo-root/
 
 ### `plugins/<plugin-name>/.claude-plugin/plugin.json`
 
-The plugin manifest. Consumed by the `cc-plugins` catalog when the plugin is installed.
+The plugin manifest. Consumed by the `clever-cc-plugins` catalog when the plugin is installed.
 
 ```json
 {
@@ -51,8 +51,8 @@ The plugin manifest. Consumed by the `cc-plugins` catalog when the plugin is ins
   "author": {
     "name": "Michael van Laar"
   },
-  "homepage": "https://github.com/MichaelvanLaar/<repo-name>",
-  "repository": "https://github.com/MichaelvanLaar/<repo-name>",
+  "homepage": "https://github.com/clever-cc-plugins/<repo-name>",
+  "repository": "https://github.com/clever-cc-plugins/<repo-name>",
   "license": "MIT"
 }
 ```
@@ -161,9 +161,9 @@ summary to `.claude/learnings.md`. Don't modify `CLAUDE.md` directly.
 
 ---
 
-## How the `cc-plugins` catalog references this repo
+## How the `clever-cc-plugins` catalog references this repo
 
-The `cc-plugins/marketplace.json` references the plugin via `git-subdir`, pointing to
+The marketplace repo's `marketplace.json` references the plugin via `git-subdir`, pointing to
 the `plugins/<plugin-name>/` subdirectory:
 
 ```json
@@ -171,7 +171,7 @@ the `plugins/<plugin-name>/` subdirectory:
   "name": "<plugin-name>",
   "source": {
     "source": "git-subdir",
-    "url": "https://github.com/MichaelvanLaar/<repo-name>.git",
+    "url": "https://github.com/clever-cc-plugins/<repo-name>.git",
     "path": "plugins/<plugin-name>"
   },
   "description": "<One-line description>"
@@ -179,7 +179,7 @@ the `plugins/<plugin-name>/` subdirectory:
 ```
 
 This means no files need to move when a new plugin repo is added to the catalog —
-just add an entry to `cc-plugins/marketplace.json`.
+just add an entry to the marketplace repo's `marketplace.json`.
 
 ---
 
@@ -196,11 +196,11 @@ just add an entry to `cc-plugins/marketplace.json`.
 
 ## Checklist for a new plugin repo
 
-- [ ] Create repo as `MichaelvanLaar/cc-<topic>` on GitHub
+- [ ] Create repo as `clever-cc-plugins/cc-<topic>` on GitHub
 - [ ] Add standard directory structure (see above)
 - [ ] Fill in `plugins/<plugin-name>/.claude-plugin/plugin.json`
 - [ ] Add skills under `plugins/<plugin-name>/skills/<skill-name>/SKILL.md`
 - [ ] Add `.claude/settings.json` with baseline permissions
 - [ ] Add `.githooks/pre-commit` and activate: `chmod +x .githooks/pre-commit && git config core.hooksPath .githooks`
 - [ ] Add `.gitignore`, `.claudeignore`, `CLAUDE.md`, `LICENSE`, `README.md`
-- [ ] Add entry to `cc-plugins/.claude-plugin/marketplace.json`
+- [ ] Add entry to the marketplace repo's `.claude-plugin/marketplace.json`
