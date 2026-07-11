@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/clever-cc-plugins/.github/main/assets/logo-dark.svg" />
+    <img src="https://raw.githubusercontent.com/clever-cc-plugins/.github/main/assets/logo.svg" width="220" alt="clever [cc] plugins" />
+  </picture>
+</p>
+
 # clever-cc-plugins marketplace
 
 Umbrella marketplace catalog for Claude Code plugins — a single `/plugin marketplace add` gives you access to all plugins maintained under this catalog.
@@ -7,15 +14,22 @@ Umbrella marketplace catalog for Claude Code plugins — a single `/plugin marke
 Open Claude Code in any project and add the marketplace:
 
 ```
-/plugin marketplace add clever-cc-plugins/marketplace
+# in any Claude Code project
+$ /plugin marketplace add clever-cc-plugins/marketplace
+✓ marketplace added · 3 plugins available
 ```
 
 Then install any plugin from the catalog:
 
 ```
-/plugin install cc-config@clever-cc-plugins
-/plugin install cc-content@clever-cc-plugins
-/plugin install cc-chime@clever-cc-plugins
+$ /plugin install cc-config@clever-cc-plugins
+✓ cc-config installed
+
+$ /plugin install cc-content@clever-cc-plugins
+✓ cc-content installed
+
+$ /plugin install cc-chime@clever-cc-plugins
+✓ cc-chime installed
 ```
 
 ### Keeping plugins current
@@ -61,3 +75,9 @@ Adding a new plugin to the catalog only requires a new entry in `.claude-plugin/
 ## License
 
 [MIT](LICENSE)
+
+---
+
+<p align="center">
+  Part of the <a href="https://github.com/clever-cc-plugins">clever-cc-plugins</a> family · <a href="https://github.com/clever-cc-plugins/cc-config">cc-config</a> · <a href="https://github.com/clever-cc-plugins/cc-content">cc-content</a> · <a href="https://github.com/clever-cc-plugins/cc-chime">cc-chime</a>
+</p>
