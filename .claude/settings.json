@@ -27,10 +27,7 @@
       {
         "matcher": "Read|Edit|Write",
         "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/guard-secret-files.sh"
-          }
+          { "type": "command", "command": "bash .claude/guard-secret-files.sh" }
         ]
       }
     ],
@@ -41,7 +38,8 @@
           {
             "type": "command",
             "command": "bash .claude/format-marketplace-json.sh || true"
-          }
+          },
+          { "type": "command", "command": "bash .claude/format-markdown.sh" }
         ]
       }
     ]

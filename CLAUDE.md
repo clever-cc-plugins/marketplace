@@ -6,10 +6,10 @@ Umbrella marketplace catalog for Claude Code plugins — each plugin lives in it
 
 | File | Purpose |
 |------|---------|
+| `.claude/format-markdown.sh` | PostToolUse hook: formats Markdown files with prettier after edits    |
 | `.claude/format-marketplace-json.sh` | PostToolUse hook: auto-formats marketplace.json with jq after edits   |
-| `.claude/guard-secret-files.sh` | PreToolUse hook: blocks reads/edits of secret .env files              |
+| `.claude/guard-secret-files.sh` | PreToolUse hook: blocks reads/edits/writes of secret .env files       |
 | `.claudeignore` | Paths excluded from Claude Code indexing                              |
-| `.claude/learnings.md` | Corrections and project-specific observations logged by Claude        |
 | `.claude-plugin/marketplace.json` | Umbrella marketplace catalog listing all plugins                      |
 | `.claude/settings.json` | Permissions, hooks, environment variables                             |
 | `docs/cc-plugin-repo-guideline.md` | Conventions for all plugin repos in the ecosystem                     |
@@ -31,6 +31,7 @@ Umbrella marketplace catalog for Claude Code plugins — each plugin lives in it
 - Plugin repos are named `cc-<topic>` (e.g., `cc-config`, `cc-content`)
 - Each plugin entry in marketplace.json uses `"source": "git-subdir"` pointing to `plugins/<plugin-name>/` in the plugin's own repo
 - Plugin manifests, skills, and settings live entirely in the plugin's own repo — nothing is duplicated here
+- `scripts/sync-config-table.sh` auto-sorts the CLAUDE.md Key Config Files table on pre-commit; pre-populate descriptions before committing new files so the hook preserves them
 
 ## Don't
 

@@ -12,9 +12,13 @@ Plugin repos are not standalone marketplaces — installation always goes throug
 ```
 repo-root/
 ├── .claude/
-│   └── settings.json             # Claude Code permissions and env vars
+│   ├── settings.json             # Claude Code permissions, hooks, env vars
+│   ├── guard-secret-files.sh     # PreToolUse hook: blocks reads/edits/writes of secret .env files
+│   └── format-markdown.sh        # PostToolUse hook: formats .md files with prettier
 ├── .githooks/
-│   └── pre-commit                # Secret scanning via gitleaks
+│   └── pre-commit                # Secret scanning (gitleaks) + CLAUDE.md table sync
+├── scripts/
+│   └── sync-config-table.sh      # Keeps CLAUDE.md's Key Config Files table in sync on each commit
 ├── plugins/
 │   └── <plugin-name>/
 │       ├── .claude-plugin/
@@ -82,11 +86,26 @@ Standard baseline permissions. Extend as needed for the plugin's specific requir
     "allow": ["Bash(git *)", "Bash(chmod +x *)"],
     "deny": [
       "Read(./.env)",
-      "Read(./.env.*)",
+      "Read(./.env.local)",
+      "Read(./.env.*.local)",
+      "Read(./.env.development)",
+      "Read(./.env.production)",
+      "Read(./.env.staging)",
+      "Read(./.env.test)",
       "Read(./secrets/**)",
       "Bash(rm -rf:*)",
       "Bash(curl:*)",
       "Bash(wget:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write",
+        "hooks": [
+          { "type": "command", "command": "bash .claude/guard-secret-files.sh" }
+        ]
+      }
     ]
   },
   "env": {
@@ -96,6 +115,35 @@ Standard baseline permissions. Extend as needed for the plugin's specific requir
     "CLAUDE_CODE_SUBAGENT_MODEL": "haiku"
   }
 }
+```
+
+Note: `Read(./.env.*)` (a broad glob) also matches `.env.example`/`.env.sample`/etc. and blocks
+Claude from reading legitimate template files. Use the enumerated list above instead — it covers
+real secret-bearing variants without catching examples.
+
+### `.claude/guard-secret-files.sh`
+
+Defense-in-depth PreToolUse hook: `permissions.deny` only covers the enumerated `.env` names above,
+so this hook catches any other `.env.*` variant (e.g. `.env.foo`) across Read, Edit, and Write.
+It must exit with code **2** to actually block the call — any other non-zero exit code is treated
+as a non-fatal hook error and the tool call proceeds anyway.
+
+```bash
+#!/usr/bin/env bash
+# PreToolUse: blocks reads/edits/writes of secret .env files; allows .env.example and similar templates.
+input=$(cat)
+f=$(echo "$input" | jq -r '.tool_input.file_path // .tool_input.path // ""' 2>/dev/null)
+b=$(basename "$f")
+case "$b" in
+  *.example|*.sample|*.template|*.dist|example.env|sample.env) exit 0 ;;
+esac
+case "$b" in
+  .env|.env.*)
+    echo "Blocked: $b matches secret env-file pattern" >&2
+    exit 2
+    ;;
+esac
+exit 0
 ```
 
 ### `.githooks/pre-commit`
@@ -111,15 +159,34 @@ else
   echo "Warning: gitleaks not installed — secret scanning skipped."
   echo "Install: brew install gitleaks (macOS) or https://github.com/gitleaks/gitleaks"
 fi
+
+# Keep CLAUDE.md config file table in sync
+bash scripts/sync-config-table.sh
 ```
 
 Activate it once after cloning: `chmod +x .githooks/pre-commit && git config core.hooksPath .githooks`
+
+### `scripts/sync-config-table.sh`
+
+Keeps the CLAUDE.md "Key Config Files" table in sync with the filesystem: adds rows for new
+config files, removes rows for deleted ones, and preserves hand-written descriptions for existing
+rows. Invoked automatically by `.githooks/pre-commit`. Copy the version from an existing repo
+(e.g. `cc-chime/scripts/sync-config-table.sh`) and adjust the scanned directories if this repo's
+layout differs (e.g. add a `.claude/context/` or `docs/` section).
 
 ### `.gitignore`
 
 ```
 .claude/settings.local.json
 .claude/local.md
+
+# Headroom — machine-local session cache and learnings
+.headroom/
+
+# MCP tool-local caches
+.codegraph/
+.serena/
+.tokensave/
 ```
 
 ### `.claudeignore`
@@ -141,12 +208,16 @@ Project-level instructions for Claude Code. Keep it concise. Minimal recommended
 
 ## Key Config Files
 
-| File                                                 | Purpose                                    |
-| ---------------------------------------------------- | ------------------------------------------ |
-| `CLAUDE.md`                                          | Project instructions, loaded every message |
-| `.claude/settings.json`                              | Permissions, hooks, environment variables  |
-| `plugins/<plugin-name>/.claude-plugin/plugin.json`   | Plugin manifest                            |
-| `plugins/<plugin-name>/skills/<skill-name>/SKILL.md` | Skill definition                           |
+| File                                                 | Purpose                                                            |
+| ---------------------------------------------------- | ------------------------------------------------------------------ |
+| `CLAUDE.md`                                          | Project instructions, loaded every message                         |
+| `.claude/settings.json`                              | Permissions, hooks, environment variables                          |
+| `.claude/guard-secret-files.sh`                      | PreToolUse hook: blocks reads/edits/writes of secret .env files    |
+| `.claude/format-markdown.sh`                         | PostToolUse hook: formats Markdown files with prettier after edits |
+| `.githooks/pre-commit`                               | Secret scanning (gitleaks) + CLAUDE.md table sync                  |
+| `scripts/sync-config-table.sh`                       | Keeps Key Config Files table in sync on each commit                |
+| `plugins/<plugin-name>/.claude-plugin/plugin.json`   | Plugin manifest                                                    |
+| `plugins/<plugin-name>/skills/<skill-name>/SKILL.md` | Skill definition                                                   |
 
 ## Don't
 
@@ -200,7 +271,9 @@ just add an entry to the marketplace repo's `marketplace.json`.
 - [ ] Add standard directory structure (see above)
 - [ ] Fill in `plugins/<plugin-name>/.claude-plugin/plugin.json`
 - [ ] Add skills under `plugins/<plugin-name>/skills/<skill-name>/SKILL.md`
-- [ ] Add `.claude/settings.json` with baseline permissions
+- [ ] Add `.claude/settings.json` with baseline permissions and the PreToolUse guard hook
+- [ ] Add `.claude/guard-secret-files.sh` and `.claude/format-markdown.sh`
+- [ ] Add `scripts/sync-config-table.sh` and wire it into `.githooks/pre-commit`
 - [ ] Add `.githooks/pre-commit` and activate: `chmod +x .githooks/pre-commit && git config core.hooksPath .githooks`
 - [ ] Add `.gitignore`, `.claudeignore`, `CLAUDE.md`, `LICENSE`, `README.md`
 - [ ] Add entry to the marketplace repo's `.claude-plugin/marketplace.json`
