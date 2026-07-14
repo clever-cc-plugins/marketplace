@@ -265,6 +265,31 @@ just add an entry to the marketplace repo's `marketplace.json`.
 
 ---
 
+## Conventions used inside skills
+
+### Skill invocation syntax
+
+Skills are invoked by their **bare name**, not namespaced with the plugin name:
+`/cc-config-init`, not `/cc-config:cc-config-init`. Claude Code's autocomplete lists
+skills unprefixed and shows the plugin origin separately (e.g. `(cc-config)`) —
+document invocation examples in READMEs and SKILL.md files accordingly.
+
+### Observation-log bracket tags
+
+When a skill logs a learning or correction (e.g. to `.claude/learnings.md` or a
+session-wrap summary), tag each entry with its plugin and skill name in brackets:
+
+```
+[<plugin-name>:<skill-name>] <concise observation> — <YYYY-MM-DD>
+```
+
+Example: `[cc-content:cc-content-onboarding] client uses "Mittelstand" as key
+identity term; avoid "SME" — 2026-05-15`. This tag is a log identifier, not a
+slash-command — it always keeps the `plugin:skill` colon form, unlike invocation
+syntax above.
+
+---
+
 ## Checklist for a new plugin repo
 
 - [ ] Create repo as `clever-cc-plugins/cc-<topic>` on GitHub
