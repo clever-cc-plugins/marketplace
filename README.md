@@ -16,7 +16,7 @@ Open Claude Code in any project and add the marketplace:
 ```
 # in any Claude Code project
 $ /plugin marketplace add clever-cc-plugins/marketplace
-✓ marketplace added · 3 plugins available
+✓ marketplace added · 4 plugins available
 ```
 
 Then install any plugin from the catalog:
@@ -30,6 +30,9 @@ $ /plugin install cc-content@clever-cc-plugins
 
 $ /plugin install cc-chime@clever-cc-plugins
 ✓ cc-chime installed
+
+$ /plugin install cc-handoff@clever-cc-plugins
+✓ cc-handoff installed
 ```
 
 ### Keeping plugins current
@@ -58,11 +61,12 @@ To remove a single plugin while keeping the marketplace:
 
 ## Available plugins
 
-| Plugin                                                          | Skills                                                                                                                                                                                                                                                                   | What it does                                                |
-| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
-| [`cc-config`](https://github.com/clever-cc-plugins/cc-config)   | `/cc-config-init`, `/cc-config-optimize`                                                                                                                                                                                                                                 | Bootstrap and audit Claude Code configurations              |
-| [`cc-content`](https://github.com/clever-cc-plugins/cc-content) | `/cc-content-onboarding`, `/cc-content-promote`, `/cc-content-research-prompt`, `/cc-content-linkedin-post`, `/cc-content-blog-article`, `/cc-content-ideation`, `/cc-content-text`, `/cc-content-samples-curation`, `/cc-content-session-wrap`, `/cc-content-new-skill` | Content creation skills for marketing projects              |
-| [`cc-chime`](https://github.com/clever-cc-plugins/cc-chime)     | _(hook-based, no slash commands)_                                                                                                                                                                                                                                        | Plays an audio notification at the end of every Claude turn |
+| Plugin                                                          | Skills                                                                                                                                                                                                                                                                   | What it does                                                           |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| [`cc-config`](https://github.com/clever-cc-plugins/cc-config)   | `/cc-config-init`, `/cc-config-optimize`                                                                                                                                                                                                                                 | Bootstrap and audit Claude Code configurations                         |
+| [`cc-content`](https://github.com/clever-cc-plugins/cc-content) | `/cc-content-onboarding`, `/cc-content-promote`, `/cc-content-research-prompt`, `/cc-content-linkedin-post`, `/cc-content-blog-article`, `/cc-content-ideation`, `/cc-content-text`, `/cc-content-samples-curation`, `/cc-content-session-wrap`, `/cc-content-new-skill` | Content creation skills for marketing projects                         |
+| [`cc-chime`](https://github.com/clever-cc-plugins/cc-chime)     | _(hook-based, no slash commands)_                                                                                                                                                                                                                                        | Plays an audio notification at the end of every Claude turn            |
+| [`cc-handoff`](https://github.com/clever-cc-plugins/cc-handoff) | `/handoff`, `/handoff-install`                                                                                                                                                                                                                                           | Create and restore machine-transfer handoff summaries between sessions |
 
 See each plugin's repository for full usage documentation.
 
@@ -79,5 +83,5 @@ Adding a new plugin to the catalog only requires a new entry in `.claude-plugin/
 ---
 
 <p align="center">
-  Part of the <a href="https://github.com/clever-cc-plugins">clever-cc-plugins</a> family · <a href="https://github.com/clever-cc-plugins/cc-config">cc-config</a> · <a href="https://github.com/clever-cc-plugins/cc-content">cc-content</a> · <a href="https://github.com/clever-cc-plugins/cc-chime">cc-chime</a>
+  Part of the <a href="https://github.com/clever-cc-plugins">clever-cc-plugins</a> family · <a href="https://github.com/clever-cc-plugins/cc-config">cc-config</a> · <a href="https://github.com/clever-cc-plugins/cc-content">cc-content</a> · <a href="https://github.com/clever-cc-plugins/cc-chime">cc-chime</a> · <a href="https://github.com/clever-cc-plugins/cc-handoff">cc-handoff</a>
 </p>

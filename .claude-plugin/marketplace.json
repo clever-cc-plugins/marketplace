@@ -31,6 +31,15 @@
         "path": "plugins/cc-chime"
       },
       "description": "Plays audio notifications when tasks complete or user input is required"
+    },
+    {
+      "name": "cc-handoff",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/clever-cc-plugins/cc-handoff.git",
+        "path": "plugins/cc-handoff"
+      },
+      "description": "Create and restore machine-transfer handoff summaries between Claude Code sessions"
     }
   ]
 }
