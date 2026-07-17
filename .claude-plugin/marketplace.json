@@ -40,6 +40,15 @@
         "path": "plugins/cc-handoff"
       },
       "description": "Create and restore machine-transfer handoff summaries between Claude Code sessions"
+    },
+    {
+      "name": "cc-concept",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/clever-cc-plugins/cc-concept.git",
+        "path": "plugins/cc-concept"
+      },
+      "description": "Marketing-strategy skills: positioning, competitive analysis, go-to-market, and campaign concepting"
     }
   ]
 }
