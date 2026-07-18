@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# sync-config-table-version: 2
 # Keeps the "Key Config Files" table in CLAUDE.md in sync with the filesystem.
 # - Removes rows for files that no longer exist
 # - Appends rows for new config files with a placeholder description
@@ -94,7 +95,7 @@ done
 config_files=("${filtered_files[@]}")
 
 # Sort config files
-mapfile -t sorted_files < <(printf '%s\n' "${config_files[@]}" | sort)
+mapfile -t sorted_files < <(printf '%s\n' "${config_files[@]}" | sort -u)
 
 # Parse existing descriptions from CLAUDE.md
 declare -A descriptions
@@ -108,6 +109,8 @@ while IFS= read -r line; do
     if [[ "$line" =~ ^\|[[:space:]]*\`([^\`]+)\`[[:space:]]*\|[[:space:]]*(.+)[[:space:]]*\| ]]; then
       file="${BASH_REMATCH[1]}"
       desc="${BASH_REMATCH[2]}"
+      # Trim trailing padding the greedy regex captures before the closing pipe
+      desc="${desc%"${desc##*[![:space:]]}"}"
       [[ "$file" == "File" ]] && continue
       descriptions["$file"]="$desc"
     fi
@@ -154,6 +157,11 @@ done < "$CLAUDE_MD"
 if $in_section && ! $table_replaced; then
   echo "" >> "$tmpfile"
   echo "$new_table" >> "$tmpfile"
+fi
+
+# Normalize with prettier before diffing so formatting-only churn doesn't trigger a rewrite
+if command -v prettier > /dev/null 2>&1; then
+  prettier --write --parser markdown "$tmpfile" > /dev/null 2>&1 || true
 fi
 
 if diff -q "$CLAUDE_MD" "$tmpfile" > /dev/null 2>&1; then
