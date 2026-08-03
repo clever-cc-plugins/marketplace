@@ -260,8 +260,8 @@ just add an entry to the marketplace repo's `marketplace.json`.
 | --------------------------- | ----------------------- | ------------------------- |
 | Repository name             | `cc-<topic>`            | `cc-config`, `cc-content` |
 | Plugin name (in manifests)  | same as repo name       | `cc-config`               |
-| Skill directory name        | kebab-case, descriptive | `cc-config-init`          |
-| Skill `name` in frontmatter | same as directory name  | `cc-config-init`          |
+| Skill directory name        | kebab-case, descriptive | `bootstrapping-config`          |
+| Skill `name` in frontmatter | same as directory name  | `bootstrapping-config`          |
 
 ---
 
@@ -270,7 +270,7 @@ just add an entry to the marketplace repo's `marketplace.json`.
 ### Skill invocation syntax
 
 Skills are invoked by their **bare name**, not namespaced with the plugin name:
-`/cc-config-init`, not `/cc-config:cc-config-init`. Claude Code's autocomplete lists
+`/bootstrapping-config`, not `/cc-config:bootstrapping-config`. Claude Code's autocomplete lists
 skills unprefixed and shows the plugin origin separately (e.g. `(cc-config)`) —
 document invocation examples in READMEs and SKILL.md files accordingly.
 
@@ -283,7 +283,7 @@ session-wrap summary), tag each entry with its plugin and skill name in brackets
 [<plugin-name>:<skill-name>] <concise observation> — <YYYY-MM-DD>
 ```
 
-Example: `[cc-content:cc-content-onboarding] client uses "Mittelstand" as key
+Example: `[cc-content:content-onboarding] client uses "Mittelstand" as key
 identity term; avoid "SME" — 2026-05-15`. This tag is a log identifier, not a
 slash-command — it always keeps the `plugin:skill` colon form, unlike invocation
 syntax above.
