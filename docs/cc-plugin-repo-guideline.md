@@ -260,8 +260,8 @@ just add an entry to the marketplace repo's `marketplace.json`.
 | --------------------------- | ----------------------- | ------------------------- |
 | Repository name             | `cc-<topic>`            | `cc-config`, `cc-content` |
 | Plugin name (in manifests)  | same as repo name       | `cc-config`               |
-| Skill directory name        | kebab-case, descriptive | `bootstrapping-config`          |
-| Skill `name` in frontmatter | same as directory name  | `bootstrapping-config`          |
+| Skill directory name        | kebab-case, descriptive | `bootstrapping-config`    |
+| Skill `name` in frontmatter | same as directory name  | `bootstrapping-config`    |
 
 ---
 
@@ -269,10 +269,10 @@ just add an entry to the marketplace repo's `marketplace.json`.
 
 ### Skill invocation syntax
 
-Skills are invoked by their **bare name**, not namespaced with the plugin name:
-`/bootstrapping-config`, not `/cc-config:bootstrapping-config`. Claude Code's autocomplete lists
-skills unprefixed and shows the plugin origin separately (e.g. `(cc-config)`) —
-document invocation examples in READMEs and SKILL.md files accordingly.
+Skills are invoked **namespaced with the plugin name**: `/cc-config:bootstrapping-config`,
+not the bare `/bootstrapping-config`. Claude Code's autocomplete behavior and Anthropic's
+own recommendations have changed to favor the namespaced form — document invocation
+examples in READMEs and SKILL.md files accordingly.
 
 ### Observation-log bracket tags
 
