@@ -6,17 +6,17 @@ Umbrella marketplace catalog for Claude Code plugins — each plugin lives in it
 
 | File                                       | Purpose                                                             |
 | ------------------------------------------ | ------------------------------------------------------------------- |
+| `.claude-plugin/marketplace.json`          | Umbrella marketplace catalog listing all plugins                    |
 | `.claude/format-markdown.sh`               | PostToolUse hook: formats Markdown files with prettier after edits  |
 | `.claude/format-marketplace-json.sh`       | PostToolUse hook: auto-formats marketplace.json with jq after edits |
 | `.claude/guard-secret-files.sh`            | PreToolUse hook: blocks reads/edits/writes of secret .env files     |
-| `.claudeignore`                            | Paths excluded from Claude Code indexing                            |
-| `CLAUDE.md`                                | Project instructions, loaded every message                          |
-| `.claude-plugin/marketplace.json`          | Umbrella marketplace catalog listing all plugins                    |
 | `.claude/settings.json`                    | Permissions, hooks, environment variables                           |
+| `.claudeignore`                            | Paths excluded from Claude Code indexing                            |
 | `.githooks/pre-commit`                     | Secret scanning (gitleaks) + CLAUDE.md table sync                   |
 | `.github/workflows/claude-code-review.yml` | Automated Claude Code PR review on pull requests                    |
 | `.github/workflows/claude.yml`             | Claude Code GitHub Actions agent triggered by @claude mentions      |
 | `.gitignore`                               | Git ignore patterns                                                 |
+| `CLAUDE.md`                                | Project instructions, loaded every message                          |
 | `scripts/sync-config-table.sh`             | Keeps the CLAUDE.md Key Config Files table in sync on each commit   |
 
 <!-- cc-config: key-config-excluded
