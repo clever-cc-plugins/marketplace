@@ -49,6 +49,24 @@
         "path": "plugins/cc-concept"
       },
       "description": "Marketing-strategy skills: positioning, competitive analysis, go-to-market, and campaign concepting"
+    },
+    {
+      "name": "cc-career",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/clever-cc-plugins/cc-career.git",
+        "path": "plugins/cc-career"
+      },
+      "description": "Career planning, upleveling, and personal-branding strategy skills"
+    },
+    {
+      "name": "cc-coach",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/clever-cc-plugins/cc-coach.git",
+        "path": "plugins/cc-coach"
+      },
+      "description": "Live-coaching skills across job-related and personal-life domains"
     }
   ]
 }

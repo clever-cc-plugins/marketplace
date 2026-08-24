@@ -16,7 +16,7 @@ Open Claude Code in any project and add the marketplace:
 ```
 # in any Claude Code project
 $ /plugin marketplace add clever-cc-plugins/marketplace
-✓ marketplace added · 5 plugins available
+✓ marketplace added · 7 plugins available
 ```
 
 Then install any plugin from the catalog:
@@ -30,6 +30,12 @@ $ /plugin install cc-concept@clever-cc-plugins
 
 $ /plugin install cc-content@clever-cc-plugins
 ✓ cc-content installed
+
+$ /plugin install cc-career@clever-cc-plugins
+✓ cc-career installed
+
+$ /plugin install cc-coach@clever-cc-plugins
+✓ cc-coach installed
 
 $ /plugin install cc-handoff@clever-cc-plugins
 ✓ cc-handoff installed
@@ -69,6 +75,8 @@ To remove a single plugin while keeping the marketplace:
 | [`cc-config`](https://github.com/clever-cc-plugins/cc-config)   | `/cc-config:bootstrapping-config`, `/cc-config:auditing-config`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Bootstrap and audit Claude Code configurations                                                      |
 | [`cc-concept`](https://github.com/clever-cc-plugins/cc-concept) | `/cc-concept:strategy-onboarding`, `/cc-concept:audience-personas`, `/cc-concept:positioning`, `/cc-concept:competitive-research`, `/cc-concept:seo-research`, `/cc-concept:campaign-concept`, `/cc-concept:channel-advisor`, `/cc-concept:editorial-strategy`, `/cc-concept:gtm-plan`, `/cc-concept:strategy-orchestrator`, `/cc-concept:learnings-promotion`, `/cc-concept:marketing-advisor`, `/cc-concept:strategy-performance-review`                                                                                                                                                                                   | Marketing-strategy skills: positioning, competitive analysis, go-to-market, and campaign concepting |
 | [`cc-content`](https://github.com/clever-cc-plugins/cc-content) | `/cc-content:content-onboarding`, `/cc-content:register-context`, `/cc-content:research-prompt`, `/cc-content:linkedin-post`, `/cc-content:blog-article`, `/cc-content:landing-page`, `/cc-content:press-release`, `/cc-content:facebook-post`, `/cc-content:marketing-email`, `/cc-content:instagram-post`, `/cc-content:content-ideation`, `/cc-content:atomize`, `/cc-content:long-tail-copy`, `/cc-content:samples-curation`, `/cc-content:humanize`, `/cc-content:content-performance-review`, `/cc-content:session-wrap`, `/cc-content:new-content-skill`, `/cc-content:x-post`, `/cc-content:gated-long-form-content` | Content creation skills for marketing projects                                                      |
+| [`cc-career`](https://github.com/clever-cc-plugins/cc-career)   | `/cc-career:career-onboarding`, `/cc-career:career-plan`, `/cc-career:personal-branding-strategy`, `/cc-career:career-performance-review`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Career planning, upleveling, and personal-branding strategy skills                                  |
+| [`cc-coach`](https://github.com/clever-cc-plugins/cc-coach)     | `/cc-coach:career-coach`, `/cc-coach:life-coach`, `/cc-coach:networking-coach`, `/cc-coach:presentation-coach`, `/cc-coach:research-prompt`, `/cc-coach:new-coaching-skill`                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Live-coaching skills across job-related and personal-life domains                                   |
 | [`cc-handoff`](https://github.com/clever-cc-plugins/cc-handoff) | `/cc-handoff:handoff`, `/cc-handoff:handoff-install`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Create and restore machine-transfer handoff summaries between sessions                              |
 | [`cc-chime`](https://github.com/clever-cc-plugins/cc-chime)     | _(hook-based, no slash commands)_                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Plays an audio notification at the end of every Claude turn                                         |
 
@@ -87,5 +95,5 @@ Adding a new plugin to the catalog only requires a new entry in `.claude-plugin/
 ---
 
 <p align="center">
-  Part of the <a href="https://github.com/clever-cc-plugins">clever-cc-plugins</a> family · <a href="https://github.com/clever-cc-plugins/cc-config">cc-config</a> · <a href="https://github.com/clever-cc-plugins/cc-concept">cc-concept</a> · <a href="https://github.com/clever-cc-plugins/cc-content">cc-content</a> · <a href="https://github.com/clever-cc-plugins/cc-handoff">cc-handoff</a> · <a href="https://github.com/clever-cc-plugins/cc-chime">cc-chime</a>
+  Part of the <a href="https://github.com/clever-cc-plugins">clever-cc-plugins</a> family · <a href="https://github.com/clever-cc-plugins/cc-config">cc-config</a> · <a href="https://github.com/clever-cc-plugins/cc-concept">cc-concept</a> · <a href="https://github.com/clever-cc-plugins/cc-content">cc-content</a> · <a href="https://github.com/clever-cc-plugins/cc-career">cc-career</a> · <a href="https://github.com/clever-cc-plugins/cc-coach">cc-coach</a> · <a href="https://github.com/clever-cc-plugins/cc-handoff">cc-handoff</a> · <a href="https://github.com/clever-cc-plugins/cc-chime">cc-chime</a>
 </p>
