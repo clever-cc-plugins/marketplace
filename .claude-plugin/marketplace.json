@@ -67,6 +67,15 @@
         "path": "plugins/cc-coach"
       },
       "description": "Live-coaching skills across job-related and personal-life domains"
+    },
+    {
+      "name": "cc-chef",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/clever-cc-plugins/cc-chef.git",
+        "path": "plugins/cc-chef"
+      },
+      "description": "Create, adapt, rework and export grounded everyday recipes"
     }
   ]
 }
