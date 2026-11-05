@@ -83,7 +83,17 @@ Standard baseline permissions. Extend as needed for the plugin's specific requir
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
-    "allow": ["Bash(git *)", "Bash(chmod +x *)"],
+    "allow": [
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(git branch *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git switch *)",
+      "Bash(chmod +x *)"
+    ],
     "ask": ["Bash(git push*)", "Bash(git -C * push*)"],
     "deny": [
       "Read(./.env)",
@@ -118,7 +128,7 @@ Standard baseline permissions. Extend as needed for the plugin's specific requir
 }
 ```
 
-`ask` is checked before `allow`, so `git push` needs a confirmation even though `Bash(git *)` allows other git commands.
+`ask` is checked before `allow`, so `git push` prompts even in `auto` and `bypassPermissions` mode. The `allow` list names git subcommands instead of using `Bash(git *)`: the blanket rule also approves pushes that the `ask` rule can't match, such as `git -c alias.x=push x` or `git send-pack`. Leave out `fetch` and `pull` for the same reason: `--upload-pack` makes them run any command. Commands outside the list follow the permission mode: a prompt in manual mode, a classifier review in `auto`, no check in `bypassPermissions`. These rules catch the usual invocations and aren't a security boundary: `git log --output=<file>` still matches the list and can overwrite a hook that `git commit` then runs.
 
 Note: `Read(./.env.*)` (a broad glob) also matches `.env.example`/`.env.sample`/etc. and blocks
 Claude from reading legitimate template files. Use the enumerated list above instead — it covers
