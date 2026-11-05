@@ -84,6 +84,7 @@ Standard baseline permissions. Extend as needed for the plugin's specific requir
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": ["Bash(git *)", "Bash(chmod +x *)"],
+    "ask": ["Bash(git push*)", "Bash(git -C * push*)"],
     "deny": [
       "Read(./.env)",
       "Read(./.env.local)",
@@ -117,6 +118,8 @@ Standard baseline permissions. Extend as needed for the plugin's specific requir
 }
 ```
 
+`ask` is checked before `allow`, so `git push` needs a confirmation even though `Bash(git *)` allows other git commands.
+
 Note: `Read(./.env.*)` (a broad glob) also matches `.env.example`/`.env.sample`/etc. and blocks
 Claude from reading legitimate template files. Use the enumerated list above instead — it covers
 real secret-bearing variants without catching examples.
@@ -127,10 +130,12 @@ Defense-in-depth PreToolUse hook: `permissions.deny` only covers the enumerated 
 so this hook catches any other `.env.*` variant (e.g. `.env.foo`) across Read, Edit, and Write.
 It must exit with code **2** to actually block the call — any other non-zero exit code is treated
 as a non-fatal hook error and the tool call proceeds anyway.
+The hook fails closed: without `jq` it can't read the file path, so it blocks the call instead of letting it through. `jq` is therefore a prerequisite for working in these repos.
 
 ```bash
 #!/usr/bin/env bash
 # PreToolUse: blocks reads/edits/writes of secret .env files; allows .env.example and similar templates.
+command -v jq >/dev/null 2>&1 || { echo "Blocked: jq is required to check file paths" >&2; exit 2; }
 input=$(cat)
 f=$(echo "$input" | jq -r '.tool_input.file_path // .tool_input.path // ""' 2>/dev/null)
 b=$(basename "$f")
