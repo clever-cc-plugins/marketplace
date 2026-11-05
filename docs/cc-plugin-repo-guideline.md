@@ -26,7 +26,6 @@ repo-root/
 │       └── skills/
 │           └── <skill-name>/
 │               └── SKILL.md      # Skill definition
-├── .claudeignore                 # Paths excluded from Claude Code indexing
 ├── .gitignore
 ├── CLAUDE.md                     # Project instructions for Claude Code
 ├── LICENSE
@@ -114,15 +113,15 @@ Standard baseline permissions. Extend as needed for the plugin's specific requir
       {
         "matcher": "Read|Edit|Write",
         "hooks": [
-          { "type": "command", "command": "bash .claude/guard-secret-files.sh" }
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/guard-secret-files.sh\""
+          }
         ]
       }
     ]
   },
   "env": {
-    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "50",
-    "MAX_THINKING_TOKENS": "10000",
-    "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "16000",
     "CLAUDE_CODE_SUBAGENT_MODEL": "haiku"
   }
 }
@@ -202,14 +201,6 @@ layout differs (e.g. add a `.claude/context/` or `docs/` section).
 .codegraph/
 .serena/
 .tokensave/
-```
-
-### `.claudeignore`
-
-Start empty with a comment. Add entries as the project grows:
-
-```
-# Paths excluded from Claude Code indexing (add entries here as the project grows)
 ```
 
 ### `CLAUDE.md`
@@ -315,5 +306,5 @@ syntax above.
 - [ ] Add `.claude/guard-secret-files.sh` and `.claude/format-markdown.sh`
 - [ ] Add `scripts/sync-config-table.sh` and wire it into `.githooks/pre-commit`
 - [ ] Add `.githooks/pre-commit` and activate: `chmod +x .githooks/pre-commit && git config core.hooksPath .githooks`
-- [ ] Add `.gitignore`, `.claudeignore`, `CLAUDE.md`, `LICENSE`, `README.md`
+- [ ] Add `.gitignore`, `CLAUDE.md`, `LICENSE`, `README.md`
 - [ ] Add entry to the marketplace repo's `.claude-plugin/marketplace.json`
