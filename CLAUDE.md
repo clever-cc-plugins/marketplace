@@ -14,8 +14,10 @@ Umbrella marketplace catalog for Claude Code plugins — each plugin lives in it
 | `.githooks/pre-commit`                     | Secret scanning (gitleaks) + CLAUDE.md table sync                   |
 | `.github/workflows/claude-code-review.yml` | Automated Claude Code PR review on pull requests                    |
 | `.github/workflows/claude.yml`             | Claude Code GitHub Actions agent triggered by @claude mentions      |
+| `.github/workflows/doc-sync.yml`           | Runs the doc drift check on README/catalog PRs and weekly           |
 | `.gitignore`                               | Git ignore patterns                                                 |
 | `CLAUDE.md`                                | Project instructions, loaded every message                          |
+| `scripts/check-doc-sync.py`                | Checks plugin and skill counts and lists agree across all READMEs   |
 | `scripts/sync-config-table.sh`             | Keeps the CLAUDE.md Key Config Files table in sync on each commit   |
 
 <!-- cc-config: key-config-excluded
@@ -26,6 +28,8 @@ docs/cc-plugin-repo-guideline.md — sync-config-table.sh doesn't scan docs/; do
 ## Commands
 
 - Validate marketplace JSON: `jq . .claude-plugin/marketplace.json`
+- Check docs across the plugin family: `python3 scripts/check-doc-sync.py` (add `--root <dir with all clones>` to use local repos)
+- Test the drift check: `python3 -m unittest discover -s tests -v`
 - Activate hooks (once per clone): `chmod +x .githooks/pre-commit && git config core.hooksPath .githooks`
 
 ## References
@@ -37,6 +41,7 @@ docs/cc-plugin-repo-guideline.md — sync-config-table.sh doesn't scan docs/; do
 - Plugin repos are named `cc-<topic>` (e.g., `cc-config`, `cc-content`)
 - Each plugin entry in marketplace.json uses `"source": "git-subdir"` pointing to `plugins/<plugin-name>/` in the plugin's own repo
 - Plugin manifests, skills, and settings live entirely in the plugin's own repo — nothing is duplicated here
+- When a plugin gains or loses a skill, or a plugin is added, run `scripts/check-doc-sync.py` and fix every README it names (this one, the org profile in `.github/profile/README.md`, the plugin's own)
 - `scripts/sync-config-table.sh` auto-sorts the CLAUDE.md Key Config Files table on pre-commit; pre-populate descriptions before committing new files so the hook preserves them
 
 ## Don't

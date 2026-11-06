@@ -9,3 +9,4 @@
 .codegraph/
 .serena/
 .tokensave/
+__pycache__/
