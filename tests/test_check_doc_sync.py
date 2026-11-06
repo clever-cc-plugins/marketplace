@@ -138,11 +138,59 @@ class CheckDocSync(unittest.TestCase):
         self.assertTrue(cds.count_matches("14", 14))
         self.assertTrue(cds.count_matches("fourteen", 14))
         self.assertFalse(cds.count_matches("Six", 7))
+        self.assertTrue(cds.count_matches("25", 25))
+        self.assertFalse(cds.count_matches("twenty", 25))
+
+    def test_missing_install_example_line(self):
+        p = self.run_check(pr=profile_readme().replace("marketplace added · 3 plugins available", "x"))
+        self.assertTrue(any("no '<N> plugins available' line" in x for x in p), p)
+
+    def test_missing_slash_sentence(self):
+        p = self.run_check(pr=profile_readme().replace("ship `/slash` commands", "ship commands"))
+        self.assertTrue(any("no '<N> plugins ship /slash commands' sentence" in x for x in p), p)
+
+    def test_plugin_with_documented_skills_but_none_found_is_not_hook_only(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            build(tmp)
+            import shutil
+            shutil.rmtree(os.path.join(tmp, "cc-b", "plugins"))
+            mj = json.dumps({"plugins": [{"name": n} for n in SKILLS]})
+            p = cds.check(cds.Source(tmp), mj, marketplace_readme(), profile_readme())
+        self.assertIn("cc-b README skill table: lists /solo, which no longer exists", p)
+        self.assertTrue(any("quick-start for cc-b lists skills, but none were found" in x for x in p), p)
+
+    def test_footer_link_with_trailing_slash_or_git_suffix_counts(self):
+        text = plugin_readme("cc-b", SKILLS["cc-b"]).replace('/cc-a"', '/cc-a/"').replace('/cc-hook"', '/cc-hook.git"')
+        self.assertEqual(self.run_check(overrides={"cc-b": text}), [])
+
+    def test_repo_of(self):
+        git = {"name": "cc-x", "source": {"source": "git-subdir", "url": "https://github.com/o/cc-x-repo.git"}}
+        self.assertEqual(cds.repo_of(git), "cc-x-repo")
+        self.assertEqual(cds.repo_of({"name": "cc-y"}), "cc-y")
+
+    def test_skills_are_read_from_the_repo_named_in_source(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            build(tmp)
+            os.rename(os.path.join(tmp, "cc-b"), os.path.join(tmp, "cc-b-repo"))
+            entries = [{"name": n} for n in SKILLS]
+            entries[1]["source"] = {"url": "https://github.com/%s/cc-b-repo.git" % ORG}
+            p = cds.check(cds.Source(tmp), json.dumps({"plugins": entries}), marketplace_readme(), profile_readme())
+        self.assertFalse(any(x.startswith("cc-b README skill table") or "README.md not found" in x for x in p), p)
+
+    def test_main_exits_1_and_prints_drift(self):
+        orig_check, orig_read = cds.check, cds.Source.read
+        cds.check = lambda *a: ["something drifted"]
+        cds.Source.read = lambda self, repo, path: ""
+        try:
+            self.assertEqual(cds.main([]), 1)
+        finally:
+            cds.check, cds.Source.read = orig_check, orig_read
 
 
 class RemoteSource(unittest.TestCase):
     def source(self, responses):
         src = cds.Source()
+        src.retry_delay = 0
         src._get = lambda url: responses[url]
         return src
 
@@ -163,6 +211,40 @@ class RemoteSource(unittest.TestCase):
         src = self.source({url: json.dumps({"truncated": True, "tree": []})})
         with self.assertRaises(OSError):
             src.skills("cc-x", "cc-x")
+
+    def test_retry_once_then_succeed_and_404_is_not_retried(self):
+        import urllib.error
+        calls = []
+
+        class Resp:
+            def __enter__(self): return self
+            def __exit__(self, *a): return False
+            def read(self): return b"ok"
+
+        def flaky(req, timeout=30):
+            calls.append(1)
+            if len(calls) == 1:
+                raise urllib.error.URLError("blip")
+            return Resp()
+
+        src = cds.Source()
+        src.retry_delay = 0
+        original = cds.urllib.request.urlopen
+        cds.urllib.request.urlopen = flaky
+        try:
+            self.assertEqual(src._get("https://example.invalid/x"), "ok")
+            self.assertEqual(len(calls), 2)
+
+            def gone(req, timeout=30):
+                calls.append(1)
+                raise urllib.error.HTTPError(req.full_url, 404, "nf", {}, None)
+            cds.urllib.request.urlopen = gone
+            before = len(calls)
+            with self.assertRaises(FileNotFoundError):
+                src._get("https://example.invalid/y")
+            self.assertEqual(len(calls) - before, 1)
+        finally:
+            cds.urllib.request.urlopen = original
 
     def test_main_exits_2_when_the_check_cannot_run(self):
         original = cds.Source.read

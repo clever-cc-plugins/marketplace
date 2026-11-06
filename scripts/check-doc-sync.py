@@ -12,7 +12,8 @@ Checked against that truth:
 
 Usage:
   python3 scripts/check-doc-sync.py                 # fetch from GitHub
-  python3 scripts/check-doc-sync.py --root ..       # use local clones in ..
+  python3 scripts/check-doc-sync.py --root ..       # plugin repos and .github from local clones in ..
+                                                    # (marketplace README and catalog always come from this checkout)
 
 Exit code 0 when everything agrees, 1 when anything drifted, 2 when the check
 could not run (network failure, rate limit, truncated API answer, missing file).
@@ -23,6 +24,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -44,6 +46,9 @@ class Source:
     def __init__(self, root=None):
         self.root = root
         self.token = os.environ.get("GITHUB_TOKEN")
+        self.retry_delay = 3
+        # Only the API call sends the token; raw.githubusercontent.com is
+        # fetched anonymously, so every repo in the family must stay public.
 
     def _get(self, url):
         """GET with one retry. A 404 raises FileNotFoundError, anything else OSError."""
@@ -63,6 +68,7 @@ class Source:
             except (urllib.error.URLError, TimeoutError) as e:
                 if attempt == 2:
                     raise OSError("cannot fetch %s: %s" % (url, e))
+            time.sleep(self.retry_delay)
 
     def read(self, repo, path):
         if self.root:
@@ -91,6 +97,14 @@ class Source:
         return sorted(found)
 
 
+def repo_of(entry):
+    """Repo name from the entry's git-subdir URL, falling back to the plugin name."""
+    source = entry.get("source")
+    url = source.get("url", "") if isinstance(source, dict) else ""
+    m = re.search(r"github\.com/[^/]+/([^/]+?)(?:\.git)?/?$", url)
+    return m.group(1) if m else entry["name"]
+
+
 def slash_names(text, plugin):
     return set(re.findall(r"`/%s:([a-z0-9-]+)`" % re.escape(plugin), text))
 
@@ -98,10 +112,12 @@ def slash_names(text, plugin):
 def check(src, marketplace_json, marketplace_readme, profile_readme):
     """Returns a list of human-readable problems. Empty list means in sync."""
     problems = []
-    plugins = [p["name"] for p in json.loads(marketplace_json)["plugins"]]
+    entries = json.loads(marketplace_json)["plugins"]
+    plugins = [p["name"] for p in entries]
+    repo = {p["name"]: repo_of(p) for p in entries}
     skills = {}
     for name in plugins:
-        skills[name] = src.skills(name, name)
+        skills[name] = src.skills(repo[name], name)
     n_plugins = len(plugins)
     n_skills = sum(len(s) for s in skills.values())
     n_slash = sum(1 for s in skills.values() if s)
@@ -121,7 +137,7 @@ def check(src, marketplace_json, marketplace_readme, profile_readme):
                     if l.startswith("|") and "[`%s`](" % name in l), None)
         if row is None:
             problems.append("marketplace README: no table row for %s" % name)
-        elif skills[name]:
+        else:
             _diff(problems, "marketplace README row for %s" % name,
                   set(skills[name]), slash_names(row, name))
 
@@ -135,11 +151,15 @@ def check(src, marketplace_json, marketplace_readme, profile_readme):
             problems.append("%s: %s badge says %s, family has %d"
                             % (where, badge, m.group(1), expected))
     m = re.search(r"(\d+) plugins available", profile_readme)
-    if m and int(m.group(1)) != n_plugins:
+    if not m:
+        problems.append("%s: no '<N> plugins available' line in the install example" % where)
+    elif int(m.group(1)) != n_plugins:
         problems.append("%s: install example says %s plugins available, catalog has %d"
                         % (where, m.group(1), n_plugins))
     m = re.search(r"(\w+) plugins ship `/slash` commands", profile_readme)
-    if m and not count_matches(m.group(1), n_slash):
+    if not m:
+        problems.append("%s: no '<N> plugins ship /slash commands' sentence" % where)
+    elif not count_matches(m.group(1), n_slash):
         problems.append("%s: says '%s plugins ship /slash commands', expected %d"
                         % (where, m.group(1), n_slash))
     # The profile text says "one runs automatically via hooks"; that sentence
@@ -154,9 +174,12 @@ def check(src, marketplace_json, marketplace_readme, profile_readme):
         if line is None:
             problems.append("%s: quick-start list has no line for %s" % (where, name))
             continue
-        if not skills[name]:
-            continue
         shown = slash_names(line, name)
+        if not skills[name]:
+            if shown:
+                problems.append("%s: quick-start for %s lists skills, but none were found in its repo"
+                                % (where, name))
+            continue
         extra = re.search(r"\+(\d+) more", line)
         more = int(extra.group(1)) if extra else 0
         if not shown <= set(skills[name]):
@@ -169,24 +192,26 @@ def check(src, marketplace_json, marketplace_readme, profile_readme):
     # --- plugin READMEs -----------------------------------------------------
     for name in plugins:
         try:
-            readme = src.read(name, "README.md")
+            readme = src.read(repo[name], "README.md")
         except FileNotFoundError:
             problems.append("%s README: README.md not found" % name)
             continue
-        if skills[name]:
-            table = set()
-            for line in readme.splitlines():
-                m = re.match(r"\|\s*`/%s:([a-z0-9-]+)`" % re.escape(name), line)
-                if m:
-                    table.add(m.group(1))
-            _diff(problems, "%s README skill table" % name, set(skills[name]), table)
+        table = set()
+        for line in readme.splitlines():
+            m = re.match(r"\|\s*`/%s:([a-z0-9-]+)`" % re.escape(name), line)
+            if m:
+                table.add(m.group(1))
+        # An empty source list with a documented table means the lookup is
+        # wrong (path, rename), not that the plugin is hook-only.
+        _diff(problems, "%s README skill table" % name, set(skills[name]), table)
         start = readme.rfind("<p align=\"center\">")
         if start < 0:
             problems.append("%s README: no footer found" % name)
             continue
         footer = readme[start:]
         for other in plugins:
-            if other != name and "/%s/%s\"" % (ORG, other) not in footer:
+            if other != name and not re.search(
+                    r"github\.com/%s/%s(?![\w-])" % (re.escape(ORG), re.escape(repo[other])), footer):
                 problems.append("%s README: footer does not link to %s" % (name, other))
     return problems
 
@@ -205,8 +230,10 @@ def main(argv=None):
     src = Source(args.root)
     here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     try:
-        mj = open(os.path.join(here, ".claude-plugin", "marketplace.json"), encoding="utf-8").read()
-        mr = open(os.path.join(here, "README.md"), encoding="utf-8").read()
+        with open(os.path.join(here, ".claude-plugin", "marketplace.json"), encoding="utf-8") as f:
+            mj = f.read()
+        with open(os.path.join(here, "README.md"), encoding="utf-8") as f:
+            mr = f.read()
     except OSError as e:
         print("error: %s" % e, file=sys.stderr)
         return 2
