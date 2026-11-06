@@ -69,6 +69,7 @@ class Source:
                 if attempt == 2:
                     raise OSError("cannot fetch %s: %s" % (url, e))
             time.sleep(self.retry_delay)
+        raise OSError("cannot fetch %s" % url)  # unreachable; keeps the flow explicit
 
     def read(self, repo, path):
         if self.root:
@@ -167,7 +168,8 @@ def check(src, marketplace_json, marketplace_readme, profile_readme):
     if "runs automatically via hooks" in profile_readme and n_hooks != 1:
         problems.append("%s: text says one plugin runs via hooks, found %d" % (where, n_hooks))
     for name in plugins:
-        if "[**%s**](" % name not in profile_readme:
+        if not any(l.startswith("|") and "[**%s**](" % name in l
+                   for l in profile_readme.splitlines()):
             problems.append("%s: plugin table has no row for %s" % (where, name))
         line = next((l for l in profile_readme.splitlines()
                      if l.startswith("- **%s**" % name)), None)

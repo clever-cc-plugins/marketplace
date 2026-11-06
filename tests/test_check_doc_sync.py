@@ -3,6 +3,7 @@ import json
 import os
 import tempfile
 import unittest
+from unittest import mock
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 spec = importlib.util.spec_from_file_location(
@@ -178,13 +179,9 @@ class CheckDocSync(unittest.TestCase):
         self.assertFalse(any(x.startswith("cc-b README skill table") or "README.md not found" in x for x in p), p)
 
     def test_main_exits_1_and_prints_drift(self):
-        orig_check, orig_read = cds.check, cds.Source.read
-        cds.check = lambda *a: ["something drifted"]
-        cds.Source.read = lambda self, repo, path: ""
-        try:
+        with mock.patch.object(cds, "check", return_value=["something drifted"]), \
+                mock.patch.object(cds.Source, "read", return_value=""):
             self.assertEqual(cds.main([]), 1)
-        finally:
-            cds.check, cds.Source.read = orig_check, orig_read
 
 
 class RemoteSource(unittest.TestCase):
@@ -229,30 +226,26 @@ class RemoteSource(unittest.TestCase):
 
         src = cds.Source()
         src.retry_delay = 0
-        original = cds.urllib.request.urlopen
-        cds.urllib.request.urlopen = flaky
-        try:
+        with mock.patch.object(cds.urllib.request, "urlopen", flaky):
             self.assertEqual(src._get("https://example.invalid/x"), "ok")
-            self.assertEqual(len(calls), 2)
+        self.assertEqual(len(calls), 2)
 
-            def gone(req, timeout=30):
-                calls.append(1)
-                raise urllib.error.HTTPError(req.full_url, 404, "nf", {}, None)
-            cds.urllib.request.urlopen = gone
-            before = len(calls)
+        def gone(req, timeout=30):
+            calls.append(1)
+            raise urllib.error.HTTPError(req.full_url, 404, "nf", {}, None)
+        before = len(calls)
+        with mock.patch.object(cds.urllib.request, "urlopen", gone):
             with self.assertRaises(FileNotFoundError):
                 src._get("https://example.invalid/y")
-            self.assertEqual(len(calls) - before, 1)
-        finally:
-            cds.urllib.request.urlopen = original
+        self.assertEqual(len(calls) - before, 1)
 
     def test_main_exits_2_when_the_check_cannot_run(self):
-        original = cds.Source.read
-        cds.Source.read = lambda self, repo, path: (_ for _ in ()).throw(OSError("offline"))
-        try:
+        with mock.patch.object(cds.Source, "read", side_effect=OSError("offline")):
             self.assertEqual(cds.main([]), 2)
-        finally:
-            cds.Source.read = original
+
+    def test_main_exits_2_for_missing_profile_readme_in_root_mode(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertEqual(cds.main(["--root", tmp]), 2)
 
 
 if __name__ == "__main__":

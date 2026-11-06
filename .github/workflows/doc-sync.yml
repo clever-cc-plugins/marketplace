@@ -23,8 +23,11 @@ permissions:
 jobs:
   doc-sync:
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Unit tests
         run: python3 -m unittest discover -s tests -v
       - name: Check documentation is in sync
