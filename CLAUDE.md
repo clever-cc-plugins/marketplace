@@ -13,8 +13,8 @@ Umbrella marketplace catalog for Claude Code plugins — each plugin lives in it
 | `.claude/settings.json`                    | Permissions, hooks, environment variables                           |
 | `.githooks/pre-commit`                     | Secret scanning (gitleaks) + CLAUDE.md table sync                   |
 | `.github/workflows/claude-code-review.yml` | Automated Claude Code PR review on pull requests                    |
-| `.github/workflows/doc-sync.yml`           | Runs the doc drift check on README/catalog PRs and weekly           |
 | `.github/workflows/claude.yml`             | Claude Code GitHub Actions agent triggered by @claude mentions      |
+| `.github/workflows/doc-sync.yml`           | Runs the doc drift check on README/catalog PRs and weekly           |
 | `.gitignore`                               | Git ignore patterns                                                 |
 | `CLAUDE.md`                                | Project instructions, loaded every message                          |
 | `scripts/check-doc-sync.py`                | Checks plugin and skill counts and lists agree across all READMEs   |

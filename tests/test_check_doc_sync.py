@@ -110,7 +110,7 @@ class CheckDocSync(unittest.TestCase):
 
     def test_slash_word(self):
         p = self.run_check(pr=profile_readme(slash="Six"))
-        self.assertTrue(any("expected Two" in x for x in p), p)
+        self.assertTrue(any("expected 2" in x for x in p), p)
 
     def test_plugin_readme_missing_skill(self):
         p = self.run_check(overrides={"cc-a": plugin_readme("cc-a", SKILLS["cc-a"][:-1])})
@@ -120,6 +120,57 @@ class CheckDocSync(unittest.TestCase):
         bad = plugin_readme("cc-b", SKILLS["cc-b"]).replace("cc-hook", "other")
         p = self.run_check(overrides={"cc-b": bad})
         self.assertIn("cc-b README: footer does not link to cc-hook", p)
+
+    def test_missing_footer_reported_once(self):
+        p = self.run_check(overrides={"cc-b": "# cc-b\n\n| `/cc-b:solo` | x |\n"})
+        self.assertEqual([x for x in p if x.startswith("cc-b README")], ["cc-b README: no footer found"])
+
+    def test_missing_plugin_readme_is_a_problem_not_a_crash(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            build(tmp)
+            os.remove(os.path.join(tmp, "cc-b", "README.md"))
+            mj = json.dumps({"plugins": [{"name": n} for n in SKILLS]})
+            p = cds.check(cds.Source(tmp), mj, marketplace_readme(), profile_readme())
+        self.assertIn("cc-b README: README.md not found", p)
+
+    def test_count_matches_accepts_digits_and_words_past_twelve(self):
+        self.assertTrue(cds.count_matches("Seven", 7))
+        self.assertTrue(cds.count_matches("14", 14))
+        self.assertTrue(cds.count_matches("fourteen", 14))
+        self.assertFalse(cds.count_matches("Six", 7))
+
+
+class RemoteSource(unittest.TestCase):
+    def source(self, responses):
+        src = cds.Source()
+        src._get = lambda url: responses[url]
+        return src
+
+    def test_tree_parsing_ignores_shared_and_other_plugins(self):
+        tree = {"tree": [
+            {"path": "plugins/cc-x/skills/alpha/SKILL.md"},
+            {"path": "plugins/cc-x/skills/alpha/notes.md"},
+            {"path": "plugins/cc-x/skills/_shared/guide.md"},
+            {"path": "plugins/cc-y/skills/beta/SKILL.md"},
+            {"path": "plugins/cc-x/skills/gamma/SKILL.md"},
+        ]}
+        url = "https://api.github.com/repos/%s/cc-x/git/trees/HEAD?recursive=1" % ORG
+        src = self.source({url: json.dumps(tree)})
+        self.assertEqual(src.skills("cc-x", "cc-x"), ["alpha", "gamma"])
+
+    def test_truncated_tree_fails_loudly(self):
+        url = "https://api.github.com/repos/%s/cc-x/git/trees/HEAD?recursive=1" % ORG
+        src = self.source({url: json.dumps({"truncated": True, "tree": []})})
+        with self.assertRaises(OSError):
+            src.skills("cc-x", "cc-x")
+
+    def test_main_exits_2_when_the_check_cannot_run(self):
+        original = cds.Source.read
+        cds.Source.read = lambda self, repo, path: (_ for _ in ()).throw(OSError("offline"))
+        try:
+            self.assertEqual(cds.main([]), 2)
+        finally:
+            cds.Source.read = original
 
 
 if __name__ == "__main__":

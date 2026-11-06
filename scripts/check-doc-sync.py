@@ -14,7 +14,8 @@ Usage:
   python3 scripts/check-doc-sync.py                 # fetch from GitHub
   python3 scripts/check-doc-sync.py --root ..       # use local clones in ..
 
-Exit code 0 when everything agrees, 1 when anything drifted, 2 on setup errors.
+Exit code 0 when everything agrees, 1 when anything drifted, 2 when the check
+could not run (network failure, rate limit, truncated API answer, missing file).
 Standard library only. Set GITHUB_TOKEN to avoid API rate limits when fetching.
 """
 import argparse
@@ -26,9 +27,15 @@ import urllib.error
 import urllib.request
 
 ORG = "clever-cc-plugins"
-WORDS = {0: "No", 1: "One", 2: "Two", 3: "Three", 4: "Four", 5: "Five",
-         6: "Six", 7: "Seven", 8: "Eight", 9: "Nine", 10: "Ten", 11: "Eleven",
-         12: "Twelve"}
+WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight",
+         "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+         "sixteen", "seventeen", "eighteen", "nineteen", "twenty"]
+
+
+def count_matches(text, n):
+    """True when text is the number n, as digits or as an English word."""
+    t = text.strip().lower()
+    return t == str(n) or (n < len(WORDS) and t == WORDS[n])
 
 
 class Source:
@@ -39,14 +46,23 @@ class Source:
         self.token = os.environ.get("GITHUB_TOKEN")
 
     def _get(self, url):
+        """GET with one retry. A 404 raises FileNotFoundError, anything else OSError."""
         headers = {"User-Agent": "check-doc-sync"}
         if self.token and "api.github.com" in url:
             headers["Authorization"] = "Bearer " + self.token
-        try:
-            with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=30) as r:
-                return r.read().decode("utf-8")
-        except urllib.error.URLError as e:
-            raise SystemExit("error: cannot fetch %s: %s" % (url, e))
+        for attempt in (1, 2):
+            try:
+                req = urllib.request.Request(url, headers=headers)
+                with urllib.request.urlopen(req, timeout=30) as r:
+                    return r.read().decode("utf-8")
+            except urllib.error.HTTPError as e:
+                if e.code == 404:
+                    raise FileNotFoundError("404 for %s" % url)
+                if attempt == 2:
+                    raise OSError("cannot fetch %s: HTTP %s" % (url, e.code))
+            except (urllib.error.URLError, TimeoutError) as e:
+                if attempt == 2:
+                    raise OSError("cannot fetch %s: %s" % (url, e))
 
     def read(self, repo, path):
         if self.root:
@@ -65,6 +81,8 @@ class Source:
                           if os.path.isfile(os.path.join(base, d, "SKILL.md")))
         tree = json.loads(self._get(
             "https://api.github.com/repos/%s/%s/git/trees/HEAD?recursive=1" % (ORG, repo)))
+        if tree.get("truncated"):
+            raise OSError("GitHub tree for %s is truncated; cannot list skills reliably" % repo)
         found = set()
         for item in tree.get("tree", []):
             m = re.fullmatch(re.escape(prefix) + r"([^/]+)/SKILL\.md", item["path"])
@@ -121,12 +139,13 @@ def check(src, marketplace_json, marketplace_readme, profile_readme):
         problems.append("%s: install example says %s plugins available, catalog has %d"
                         % (where, m.group(1), n_plugins))
     m = re.search(r"(\w+) plugins ship `/slash` commands", profile_readme)
-    if m and m.group(1) != WORDS.get(n_slash):
-        problems.append("%s: says '%s plugins ship /slash commands', expected %s"
-                        % (where, m.group(1), WORDS.get(n_slash, n_slash)))
-    m = re.search(r"(\w+) (?:runs|run) automatically via hooks", profile_readme)
-    if m and n_hooks != 1:
-        problems.append("%s: text about hook-only plugins assumes one, found %d" % (where, n_hooks))
+    if m and not count_matches(m.group(1), n_slash):
+        problems.append("%s: says '%s plugins ship /slash commands', expected %d"
+                        % (where, m.group(1), n_slash))
+    # The profile text says "one runs automatically via hooks"; that sentence
+    # needs rewording if the number of hook-only plugins ever changes.
+    if "runs automatically via hooks" in profile_readme and n_hooks != 1:
+        problems.append("%s: text says one plugin runs via hooks, found %d" % (where, n_hooks))
     for name in plugins:
         if "[**%s**](" % name not in profile_readme:
             problems.append("%s: plugin table has no row for %s" % (where, name))
@@ -151,8 +170,8 @@ def check(src, marketplace_json, marketplace_readme, profile_readme):
     for name in plugins:
         try:
             readme = src.read(name, "README.md")
-        except OSError:
-            problems.append("%s README: cannot read README.md" % name)
+        except FileNotFoundError:
+            problems.append("%s README: README.md not found" % name)
             continue
         if skills[name]:
             table = set()
@@ -161,7 +180,11 @@ def check(src, marketplace_json, marketplace_readme, profile_readme):
                 if m:
                     table.add(m.group(1))
             _diff(problems, "%s README skill table" % name, set(skills[name]), table)
-        footer = readme[readme.rfind("<p align=\"center\">"):]
+        start = readme.rfind("<p align=\"center\">")
+        if start < 0:
+            problems.append("%s README: no footer found" % name)
+            continue
+        footer = readme[start:]
         for other in plugins:
             if other != name and "/%s/%s\"" % (ORG, other) not in footer:
                 problems.append("%s README: footer does not link to %s" % (name, other))
@@ -189,10 +212,10 @@ def main(argv=None):
         return 2
     try:
         profile = src.read(".github", "profile/README.md")
+        problems = check(src, mj, mr, profile)
     except OSError as e:
         print("error: %s" % e, file=sys.stderr)
         return 2
-    problems = check(src, mj, mr, profile)
     if problems:
         print("Documentation drift (%d):" % len(problems))
         for p in problems:
