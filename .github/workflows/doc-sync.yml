@@ -1,0 +1,33 @@
+name: Doc sync
+
+# Checks that plugin and skill counts, lists and links agree across the
+# marketplace README, the org profile README and every plugin README.
+# The plugin repos are the source of truth, so a weekly run catches drift
+# that starts in another repo.
+
+on:
+  pull_request:
+    paths:
+      - README.md
+      - .claude-plugin/marketplace.json
+      - scripts/check-doc-sync.py
+      - tests/**
+      - .github/workflows/doc-sync.yml
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  doc-sync:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - name: Unit tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Check documentation is in sync
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 scripts/check-doc-sync.py
