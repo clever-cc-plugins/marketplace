@@ -42,6 +42,7 @@ $ /plugin install cc-handoff@clever-cc-plugins
 
 $ /plugin install cc-chime@clever-cc-plugins
 ✓ cc-chime installed
+
 $ /plugin install cc-chef@clever-cc-plugins
 ✓ cc-chef installed
 ```
