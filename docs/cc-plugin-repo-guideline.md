@@ -93,7 +93,7 @@ Standard baseline permissions. Extend as needed for the plugin's specific requir
       "Bash(git switch *)",
       "Bash(chmod +x *)"
     ],
-    "ask": ["Bash(git push*)", "Bash(git -C * push*)"],
+    "ask": ["Bash(git push*)"],
     "deny": [
       "Read(./.env)",
       "Read(./.env.local)",
@@ -127,7 +127,7 @@ Standard baseline permissions. Extend as needed for the plugin's specific requir
 }
 ```
 
-`ask` is checked before `allow`, so `git push` prompts even in `auto` and `bypassPermissions` mode. The `allow` list names git subcommands instead of using `Bash(git *)`: the blanket rule also approves pushes that the `ask` rule can't match, such as `git -c alias.x=push x` or `git send-pack`. Leave out `fetch` and `pull` for the same reason: `--upload-pack` makes them run any command. Commands outside the list follow the permission mode: a prompt in manual mode, a classifier review in `auto`, no check in `bypassPermissions`. These rules catch the usual invocations and aren't a security boundary: `git log --output=<file>` still matches the list and can overwrite a hook that `git commit` then runs.
+`ask` is checked before `allow`, so `git push` prompts even in `auto` and `bypassPermissions` mode. There is deliberately no `Bash(git -C * push*)` rule: a wildcard matches the whole command text, so it also prompts for harmless commands that merely mention `push` (e.g. `git -C repo log -S'git push*'`); `git -C <dir> push` is therefore not caught. The `allow` list names git subcommands instead of using `Bash(git *)`: the blanket rule also approves pushes that the `ask` rule can't match, such as `git -c alias.x=push x` or `git send-pack`. Leave out `fetch` and `pull` for the same reason: `--upload-pack` makes them run any command. Commands outside the list follow the permission mode: a prompt in manual mode, a classifier review in `auto`, no check in `bypassPermissions`. These rules catch the usual invocations and aren't a security boundary: `git log --output=<file>` still matches the list and can overwrite a hook that `git commit` then runs.
 
 Note: `Read(./.env.*)` (a broad glob) also matches `.env.example`/`.env.sample`/etc. and blocks
 Claude from reading legitimate template files. Use the enumerated list above instead — it covers

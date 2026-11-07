@@ -17,7 +17,6 @@ Umbrella marketplace catalog for Claude Code plugins — each plugin lives in it
 | `.github/workflows/doc-sync.yml`           | Runs the doc drift check on README/catalog PRs and weekly           |
 | `.gitignore`                               | Git ignore patterns                                                 |
 | `CLAUDE.md`                                | Project instructions, loaded every message                          |
-| `scripts/check-doc-sync.py`                | Checks plugin and skill counts and lists agree across all READMEs   |
 | `scripts/sync-config-table.sh`             | Keeps the CLAUDE.md Key Config Files table in sync on each commit   |
 
 <!-- cc-config: key-config-excluded
