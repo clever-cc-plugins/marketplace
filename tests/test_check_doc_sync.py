@@ -12,6 +12,7 @@ cds = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(cds)
 
 ORG = "clever-cc-plugins"
+PROTOCOL = "# Learnings Protocol\n\n_Last updated: 2026-11-10_\n"
 SKILLS = {"cc-a": ["one", "two", "three", "four", "five"], "cc-b": ["solo"], "cc-hook": []}
 
 
@@ -55,7 +56,7 @@ def write(path, text):
         f.write(text)
 
 
-def build(tmp, overrides=None):
+def build(tmp, overrides=None, protocols=None):
     overrides = overrides or {}
     for name, skills in SKILLS.items():
         base = os.path.join(tmp, name)
@@ -63,13 +64,16 @@ def build(tmp, overrides=None):
             os.makedirs(os.path.join(base, "plugins", name, "skills", s))
             write(os.path.join(base, "plugins", name, "skills", s, "SKILL.md"), "x")
         os.makedirs(os.path.join(base, "plugins", name, "skills", "_shared"), exist_ok=True)
+        protocol = (protocols or {}).get(name, PROTOCOL)
+        if skills and protocol is not None:
+            write(os.path.join(base, "plugins", name, "skills", "_shared", "learnings-protocol.md"), protocol)
         write(os.path.join(base, "README.md"), overrides.get(name, plugin_readme(name, skills)))
 
 
 class CheckDocSync(unittest.TestCase):
-    def run_check(self, mr=None, pr=None, overrides=None):
+    def run_check(self, mr=None, pr=None, overrides=None, protocols=None):
         with tempfile.TemporaryDirectory() as tmp:
-            build(tmp, overrides)
+            build(tmp, overrides, protocols)
             mj = json.dumps({"plugins": [{"name": n} for n in SKILLS]})
             return cds.check(cds.Source(tmp), mj, mr or marketplace_readme(), pr or profile_readme())
 
@@ -133,6 +137,32 @@ class CheckDocSync(unittest.TestCase):
             mj = json.dumps({"plugins": [{"name": n} for n in SKILLS]})
             p = cds.check(cds.Source(tmp), mj, marketplace_readme(), profile_readme())
         self.assertIn("cc-b README: README.md not found", p)
+
+    def test_missing_learnings_protocol(self):
+        p = self.run_check(protocols={"cc-b": None})
+        self.assertIn("cc-b: plugins/cc-b/skills/_shared/learnings-protocol.md not found", p)
+
+    def test_learnings_protocol_differs(self):
+        p = self.run_check(protocols={"cc-b": PROTOCOL + "drift\n"})
+        self.assertIn("cc-b: _shared/learnings-protocol.md differs from the copy in cc-a (first difference at line 4)", p)
+        self.assertFalse(any(x.startswith("cc-a: _shared/learnings-protocol.md") for x in p), p)
+
+    def test_learnings_protocol_tie_goes_to_the_earliest_plugin(self):
+        # one copy each: the 1-1 tie must resolve to the first plugin in catalog order, so cc-b is the one flagged
+        p = self.run_check(protocols={"cc-a": PROTOCOL + "other\n"})
+        self.assertTrue(any(x.startswith("cc-b: _shared/learnings-protocol.md differs from the copy in cc-a") for x in p), p)
+        self.assertFalse(any(x.startswith("cc-a: _shared/learnings-protocol.md") for x in p), p)
+
+    def test_learnings_protocol_final_newline_only_difference_is_named(self):
+        p = self.run_check(protocols={"cc-b": PROTOCOL.rstrip("\n")})
+        self.assertIn("cc-b: _shared/learnings-protocol.md differs from the copy in cc-a (only line endings or the final newline differ)", p)
+
+    def test_learnings_protocol_difference_in_the_middle_names_the_line(self):
+        p = self.run_check(protocols={"cc-b": PROTOCOL.replace("2026-11-10", "2026-11-11")})
+        self.assertIn("cc-b: _shared/learnings-protocol.md differs from the copy in cc-a (first difference at line 3)", p)
+
+    def test_hook_only_plugin_needs_no_learnings_protocol(self):
+        self.assertFalse(any("cc-hook" in x and "learnings-protocol" in x for x in self.run_check()))
 
     def test_count_matches_accepts_digits_and_words_past_twelve(self):
         self.assertTrue(cds.count_matches("Seven", 7))

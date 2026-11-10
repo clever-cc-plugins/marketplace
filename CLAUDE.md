@@ -41,6 +41,7 @@ docs/cc-plugin-repo-guideline.md — sync-config-table.sh doesn't scan docs/; do
 - Each plugin entry in marketplace.json uses `"source": "git-subdir"` pointing to `plugins/<plugin-name>/` in the plugin's own repo
 - Plugin manifests, skills, and settings live entirely in the plugin's own repo — nothing is duplicated here
 - When a plugin gains or loses a skill, or a plugin is added, run `scripts/check-doc-sync.py` and fix every README it names (this one, the org profile in `.github/profile/README.md`, the plugin's own)
+- learnings-protocol.md must stay identical in every plugin repo; check-doc-sync.py reports a missing or differing copy
 - `scripts/sync-config-table.sh` auto-sorts the CLAUDE.md Key Config Files table on pre-commit; pre-populate descriptions before committing new files so the hook preserves them
 
 ## Don't
