@@ -9,6 +9,7 @@ Checked against that truth:
   - org profile README (.github): plugin and skill badges, "+N more" counts,
     "<N> plugins ship /slash commands", plugin table, install-example count
   - every plugin README: skill table rows, footer links to the other plugins
+  - every plugin with skills: skills/_shared/learnings-protocol.md exists and is identical across plugins
 
 Usage:
   python3 scripts/check-doc-sync.py                 # fetch from GitHub
@@ -20,6 +21,7 @@ could not run (network failure, rate limit, truncated API answer, missing file).
 Standard library only. Set GITHUB_TOKEN to avoid API rate limits when fetching.
 """
 import argparse
+import collections
 import json
 import os
 import re
@@ -215,6 +217,28 @@ def check(src, marketplace_json, marketplace_readme, profile_readme):
             if other != name and not re.search(
                     r"github\.com/%s/%s(?![\w-])" % (re.escape(ORG), re.escape(repo[other])), footer):
                 problems.append("%s README: footer does not link to %s" % (name, other))
+    problems.extend(check_learnings_protocol(src, plugins, repo, skills))
+    return problems
+
+
+def check_learnings_protocol(src, plugins, repo, skills):
+    """Every plugin with skills ships the same learnings-protocol.md; the most common text is the reference."""
+    problems = []
+    texts = {}
+    for name in plugins:
+        if not skills[name]:
+            continue
+        path = "plugins/%s/skills/_shared/learnings-protocol.md" % name
+        try:
+            texts[name] = src.read(repo[name], path)
+        except FileNotFoundError:
+            problems.append("%s: %s not found" % (name, path))
+    if texts:
+        reference = collections.Counter(texts.values()).most_common(1)[0][0]
+        holders = ", ".join(n for n, t in texts.items() if t == reference)
+        for name, text in texts.items():
+            if text != reference:
+                problems.append("%s: _shared/learnings-protocol.md differs from the copy in %s" % (name, holders))
     return problems
 
 

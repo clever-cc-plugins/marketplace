@@ -285,13 +285,15 @@ When a skill logs a learning or correction (e.g. to `.claude/learnings.md` or a
 session-wrap summary), tag each entry with its plugin and skill name in brackets:
 
 ```
-[<plugin-name>:<skill-name>] <concise observation> — <YYYY-MM-DD>
+[<plugin-name>:<skill-name>] <concise observation> (<stated|corrected|inferred>) — <YYYY-MM-DD>
 ```
 
 Example: `[cc-content:content-onboarding] client uses "Mittelstand" as key
-identity term; avoid "SME" — 2026-05-15`. This tag is a log identifier, not a
+identity term; avoid "SME" (stated) — 2026-05-15`. This tag is a log identifier, not a
 slash-command — it always keeps the `plugin:skill` colon form, unlike invocation
 syntax above.
+
+Every plugin with skills ships `plugins/<name>/skills/_shared/learnings-protocol.md`, byte-identical across plugins; skills reference it instead of restating learnings rules. To change it, edit one copy and copy it to every plugin repo in the same change set; `scripts/check-doc-sync.py` reports drift.
 
 ---
 
