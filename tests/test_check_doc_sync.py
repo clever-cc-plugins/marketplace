@@ -144,8 +144,22 @@ class CheckDocSync(unittest.TestCase):
 
     def test_learnings_protocol_differs(self):
         p = self.run_check(protocols={"cc-b": PROTOCOL + "drift\n"})
-        self.assertIn("cc-b: _shared/learnings-protocol.md differs from the copy in cc-a", p)
+        self.assertIn("cc-b: _shared/learnings-protocol.md differs from the copy in cc-a (first difference at line 4)", p)
         self.assertFalse(any(x.startswith("cc-a: _shared/learnings-protocol.md") for x in p), p)
+
+    def test_learnings_protocol_tie_goes_to_the_earliest_plugin(self):
+        # one copy each: the 1-1 tie must resolve to the first plugin in catalog order, so cc-b is the one flagged
+        p = self.run_check(protocols={"cc-a": PROTOCOL + "other\n"})
+        self.assertTrue(any(x.startswith("cc-b: _shared/learnings-protocol.md differs from the copy in cc-a") for x in p), p)
+        self.assertFalse(any(x.startswith("cc-a: _shared/learnings-protocol.md") for x in p), p)
+
+    def test_learnings_protocol_final_newline_only_difference_is_named(self):
+        p = self.run_check(protocols={"cc-b": PROTOCOL.rstrip("\n")})
+        self.assertIn("cc-b: _shared/learnings-protocol.md differs from the copy in cc-a (only line endings or the final newline differ)", p)
+
+    def test_learnings_protocol_difference_in_the_middle_names_the_line(self):
+        p = self.run_check(protocols={"cc-b": PROTOCOL.replace("2026-11-10", "2026-11-11")})
+        self.assertIn("cc-b: _shared/learnings-protocol.md differs from the copy in cc-a (first difference at line 3)", p)
 
     def test_hook_only_plugin_needs_no_learnings_protocol(self):
         self.assertFalse(any("cc-hook" in x and "learnings-protocol" in x for x in self.run_check()))

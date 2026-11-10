@@ -238,8 +238,20 @@ def check_learnings_protocol(src, plugins, repo, skills):
         holders = ", ".join(n for n, t in texts.items() if t == reference)
         for name, text in texts.items():
             if text != reference:
-                problems.append("%s: _shared/learnings-protocol.md differs from the copy in %s" % (name, holders))
+                problems.append("%s: _shared/learnings-protocol.md differs from the copy in %s (%s)"
+                                % (name, holders, _describe_difference(reference, text)))
     return problems
+
+
+def _describe_difference(a, b):
+    """Where a and b first differ: a line number, or a note when only line endings or the final newline differ."""
+    a_lines, b_lines = a.splitlines(), b.splitlines()
+    for i, (x, y) in enumerate(zip(a_lines, b_lines), 1):
+        if x != y:
+            return "first difference at line %d" % i
+    if len(a_lines) == len(b_lines):
+        return "only line endings or the final newline differ"
+    return "first difference at line %d" % (min(len(a_lines), len(b_lines)) + 1)
 
 
 def _diff(problems, label, truth, documented):

@@ -293,7 +293,7 @@ identity term; avoid "SME" (stated) — 2026-05-15`. This tag is a log identifie
 slash-command — it always keeps the `plugin:skill` colon form, unlike invocation
 syntax above.
 
-Every plugin with skills ships `plugins/<name>/skills/_shared/learnings-protocol.md`, byte-identical across plugins; skills reference it instead of restating learnings rules. To change it, edit one copy and copy it to every plugin repo in the same change set; `scripts/check-doc-sync.py` reports drift.
+Every plugin with skills ships `plugins/<name>/skills/_shared/learnings-protocol.md`, byte-identical across plugins; skills reference it instead of restating learnings rules. To change it, edit one copy and copy it to every plugin repo in the same change set; `scripts/check-doc-sync.py` reports drift and the first differing line. In remote mode it reads each plugin repo's default branch, so it stays red until every plugin repo has merged the change: merge the plugin PRs first.
 
 ---
 
