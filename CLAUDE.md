@@ -22,7 +22,7 @@ Umbrella marketplace catalog for Claude Code plugins — each plugin lives in it
 <!-- cc-config: key-config-excluded
 docs/cc-plugin-repo-guideline.md — sync-config-table.sh doesn't scan docs/; documented under References instead — 2026-11-05
 -->
-<!-- cc-config: last-optimize-run: 2026-11-05 ca018c9 -->
+<!-- cc-config: last-optimize-run: 2026-11-12 a40af34 -->
 
 ## Commands
 
@@ -52,8 +52,7 @@ docs/cc-plugin-repo-guideline.md — sync-config-table.sh doesn't scan docs/; do
 
 ## Learnings
 
-When the user corrects a mistake or points out a recurring issue, append a one-line
-summary to `.claude/learnings.md`. Don't modify `CLAUDE.md` directly.
+When the user corrects a mistake or points out a recurring issue, record a one-line entry in `.claude/learnings.md` as `[claude:note] <observation> (corrected) — YYYY-MM-DD` (use `(stated)` when the user states a standing rule). If it contradicts an existing entry, replace that entry instead of adding a second one. Don't modify `CLAUDE.md` directly.
 
 ## Compact Instructions
 
